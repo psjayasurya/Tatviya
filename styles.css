@@ -163,10 +163,89 @@ button {
     mix-blend-mode: normal;
 }
 
+.hero-graph {
+    position: absolute;
+    right: 6%;
+    bottom: 8%;
+    width: min(36vw, 520px);
+    height: min(28vw, 260px);
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: linear-gradient(180deg, rgba(8, 27, 80, 0.35) 0%, rgba(8, 27, 80, 0.05) 100%);
+    backdrop-filter: blur(1.5px);
+    z-index: 2;
+    pointer-events: none;
+}
+
+.graph-bars {
+    position: absolute;
+    inset: 16px 16px 16px 16px;
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.bar {
+    flex: 1;
+    height: var(--h);
+    border-radius: 8px 8px 3px 3px;
+    background: linear-gradient(180deg, rgba(255, 107, 53, 0.9) 0%, rgba(255, 107, 53, 0.35) 100%);
+    transform-origin: bottom;
+    animation: barRise 2.6s ease-in-out infinite;
+    animation-delay: var(--d);
+}
+
+.spike-chart {
+    position: absolute;
+    inset: 12px;
+    width: calc(100% - 24px);
+    height: calc(100% - 24px);
+}
+
+.spike-line {
+    fill: none;
+    stroke: #58e5ff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 480;
+    stroke-dashoffset: 480;
+    filter: drop-shadow(0 0 8px rgba(88, 229, 255, 0.6));
+    animation: drawSpike 2.6s ease-in-out infinite;
+}
+
+@keyframes barRise {
+    0%, 100% {
+        transform: scaleY(0.65);
+        opacity: 0.5;
+    }
+    45% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+@keyframes drawSpike {
+    0% {
+        stroke-dashoffset: 480;
+        opacity: 0.2;
+    }
+    35%, 80% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 0.4;
+    }
+}
+
 .hero-summary {
     background: linear-gradient(135deg, var(--secondary-color) 0%, #003d6b 100%);
     color: white;
     padding: 80px 0;
+    position: relative;
 }
 
 .hero-summary .container {
@@ -174,6 +253,24 @@ button {
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     align-items: center;
+}
+
+.hero-summary .hero-graph {
+    display: none;
+    position: absolute;
+    top: 50%;
+    bottom: auto;
+    left: auto;
+    right: 3.5%;
+    transform: translateY(-50%);
+    width: 280px;
+    height: 170px;
+}
+
+@media (min-width: 1400px) {
+    .hero-summary .hero-graph {
+        display: block;
+    }
 }
 
 .hero-content {
@@ -850,6 +947,14 @@ button {
         background-size: 100% auto;
         background-position: top center;
         background-color: #051746;
+    }
+
+    .graph-bars {
+        gap: 6px;
+    }
+
+    .spike-line {
+        stroke-width: 3;
     }
 
     .hero-summary .container {

@@ -24,16 +24,25 @@ navItems.forEach(item => {
 // ===========================
 
 const contactForm = document.getElementById('contactForm');
+const FORM_ENDPOINT = 'https://formsubmit.co/ajax/contact@tatviya.com';
+let isSubmitting = false;
 
 if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
+    const submitBtn = contactForm.querySelector('.submit-btn');
+    const originalBtnText = submitBtn ? submitBtn.textContent : 'Send Message';
+
+    contactForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+
+        if (isSubmitting) {
+            return;
+        }
         
         // Get form values
-        const name = this.elements[0].value;
-        const email = this.elements[1].value;
-        const subject = this.elements[2].value;
-        const message = this.elements[3].value;
+        const name = this.elements.name.value.trim();
+        const email = this.elements.email.value.trim();
+        const subject = this.elements.subject.value.trim();
+        const message = this.elements.message.value.trim();
         
         // Validate email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,12 +56,47 @@ if (contactForm) {
             showAlert('Please write a longer message (at least 10 characters)', 'error');
             return;
         }
-        
-        // Show success message
-        showAlert('Thank you! Your message has been sent successfully. We will get back to you soon.', 'success');
-        
-        // Reset form
-        this.reset();
+
+        isSubmitting = true;
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+        }
+
+        const payload = {
+            name,
+            email,
+            subject,
+            message,
+            _subject: `New website inquiry: ${subject}`,
+            _template: 'table'
+        };
+
+        try {
+            const response = await fetch(FORM_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Email service request failed');
+            }
+
+            showAlert('Thank you! Your message has been sent to contact@tatviya.com.', 'success');
+            this.reset();
+        } catch (error) {
+            showAlert('Message could not be sent right now. Please try again in a moment.', 'error');
+        } finally {
+            isSubmitting = false;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        }
     });
 }
 
@@ -240,29 +284,6 @@ document.querySelectorAll('.stat').forEach(stat => {
 });
 
 // ===========================
-// Add Loading State to Submit Button
-// ===========================
-
-if (contactForm) {
-    const submitBtn = contactForm.querySelector('.submit-btn');
-    
-    if (submitBtn) {
-        const originalText = submitBtn.textContent;
-        
-        contactForm.addEventListener('submit', function() {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Sending...';
-            
-            // Simulate form submission delay
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }, 1500);
-        });
-    }
-}
-
-// ===========================
 // Navbar Shadow on Scroll
 // ===========================
 
@@ -290,25 +311,5 @@ formInputs.forEach(input => {
         this.style.borderColor = 'var(--border-color)';
     });
 });
-
-// ===========================
-// Prevent Multiple Form Submissions
-// ===========================
-
-let isSubmitting = false;
-
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        if (isSubmitting) {
-            e.preventDefault();
-            return;
-        }
-        isSubmitting = true;
-        
-        setTimeout(() => {
-            isSubmitting = false;
-        }, 2000);
-    });
-}
 
 console.log('✓ Tatviya website script loaded successfully');
