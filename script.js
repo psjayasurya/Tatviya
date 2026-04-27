@@ -251,14 +251,15 @@ function animateCounter(element, target, duration = 2000) {
     const start = 0;
     const increment = target / (duration / 16);
     let current = start;
+    const precision = Number.isInteger(target) ? 0 : String(target).split('.')[1].length;
     
     const timer = setInterval(() => {
         current += increment;
         if (current >= target) {
-            element.textContent = target + (element.textContent.includes('+') ? '+' : '');
+            element.textContent = target.toFixed(precision) + (element.textContent.includes('+') ? '+' : '');
             clearInterval(timer);
         } else {
-            element.textContent = Math.floor(current) + (element.textContent.includes('+') ? '+' : '');
+            element.textContent = current.toFixed(precision) + (element.textContent.includes('+') ? '+' : '');
         }
     }, 16);
 }
@@ -270,7 +271,7 @@ const statsObserver = new IntersectionObserver(function(entries) {
             const stat = entry.target.querySelector('h3');
             if (stat && !stat.dataset.animated) {
                 const text = stat.textContent;
-                const number = parseInt(text.replace(/\D/g, ''));
+                const number = parseFloat(text.replace(/[^\d.]/g, ''));
                 animateCounter(stat, number);
                 stat.dataset.animated = 'true';
             }
